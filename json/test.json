@@ -1,0 +1,44 @@
+{
+    "id": 111,
+    "title": "Chapter-1 (Thermodynamics)",
+    "subTitle":"Mid term test",
+    "subjectName": "Physics",
+    "stream": "NEET",
+    "active": true,
+    "questions": [
+        {
+            "id": 1,
+            "image": "https://test.aayamcareerinstitute.co.in/Uploads/1078/English/Q1.jpg",
+            "correctAnswer": "A",
+            "type": "single-option"
+        },
+        {
+            "id": 2,
+            "image": "https://test.aayamcareerinstitute.co.in/Uploads/1078/English/Q2.jpg",
+            "correctAnswer": "B",
+            "type": "single-option"
+        },
+        {
+            "id": 3,
+            "image": "https://test.aayamcareerinstitute.co.in/Uploads/1078/English/Q3.jpg",
+            "correctAnswer": "C",
+            "type": "single-option"
+        },
+        {
+            "id": 4,
+            "image": "https://test.aayamcareerinstitute.co.in/Uploads/1078/English/Q4.jpg",
+            "correctAnswer": "D",
+            "type": "single-option"
+        },
+        {
+            "id": 5,
+            "image": "https://test.aayamcareerinstitute.co.in/Uploads/1078/English/Q5.jpg",
+            "correctAnswer": "A",
+            "type": "single-option"
+        }
+    ],
+    "passingScore": 6,
+    "testDate": "Mon Aug 21 2023 18:17:53 GMT+0530 (India Standard Time)",
+    "testDuration": 1800,
+    "resultDate": "Mon Aug 22 2023 18:17:53 GMT+0530 (India Standard Time)"
+}
