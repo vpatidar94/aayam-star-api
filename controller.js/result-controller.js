@@ -14,16 +14,16 @@ const getResultDashboard = async (req, res) => {
           currentDate.getUTCFullYear(),
           currentDate.getUTCMonth(),
           currentDate.getUTCDate(),
-          0,
-          0,
+          0+5,
+          30,
           0
         ); // Start of the day
         const endDate = new Date(
           currentDate.getUTCFullYear(),
           currentDate.getUTCMonth(),
           currentDate.getUTCDate(),
-          23,
-          59,
+          23+5,
+          59+30,
           59
         ); // End of the day
 
@@ -31,11 +31,10 @@ const getResultDashboard = async (req, res) => {
           $gte: startDate,
           $lte: endDate
         }});
-
         // if results are available then check it is attempted by user or not
         if(todaysTest && todaysTest.length > 0 && todaysTest[0]?._id){
           try {
-            const isAvailable = await Result.find({testId : todaysTest[0]._id});        
+            const isAvailable = await Result.find({testId : todaysTest[0]._id, userId: req.user.userId});  
             return res.status(200).json(
               { 
                 data: {
