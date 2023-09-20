@@ -21,9 +21,12 @@ const resultSchema = new Schema({
     rank: {
         type: Number,
     },
+    duration: {
+        type: Number,
+    },
     submitDate: {
         type: Date
-    }
+    },    
 })
 
 module.exports = mongoose.model("Result", resultSchema);

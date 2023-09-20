@@ -43,6 +43,46 @@ const getTest = async (req, res) => {
       }
 }
 
+const getAllTest = async (req, res) => {
+  try {
+      // const { testId } =  req.params;
+      // if (!testId) {
+      //   return res.status(400).json({ code: 400,  status_code: "error", error: 'Test id required' });
+      // }
+  
+      const tests = await Test.find().sort({testDate: -1});
+
+      if (!tests || tests.length <= 0) {
+        return res.status(200).json({ code: 201, data: [], status_code: "success", message: 'No test found.' });
+      }
+
+      return res.status(200).json({data: tests, code: 200,  status_code: "success", message: "All Tests records fetched successfully."})
+
+    } catch (error) {
+      return res.status(500).json({ code: 500,  status_code: "error", error: 'An error occurred while fetching the test details' });
+    }
+}
+
+const getTestDetail = async (req, res) => {
+  try {
+      const { testId } =  req.params;
+      if (!testId) {
+        return res.status(400).json({ code: 400,  status_code: "error", error: 'Test id required' });
+      }
+  
+      const test = await Test.find({ _id: testId });
+
+      if (!test || test.length <= 0) {
+        return res.status(404).json({ code: 404,  status_code: "error", error: 'Test not found' });
+      }
+
+      return res.status(200).json({data: test[0], code: 200,  status_code: "success", message: "Test fetched successfully."})
+
+    } catch (error) {
+      res.status(500).json({ code: 500,  status_code: "error", error: 'An error occurred while fetching the test details' });
+    }
+}
+
 const submitResult = async (req, res) => {
   try {
       const data = req.body;
@@ -94,4 +134,7 @@ const submitResult = async (req, res) => {
 
 exports.addTest = addTest;
 exports.getTest = getTest;
+exports.getTestDetail = getTestDetail;
+
+exports.getAllTest = getAllTest;
 exports.submitResult = submitResult;

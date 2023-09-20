@@ -32,9 +32,10 @@ const addUpdateUser = async (req, res) => {
     if (!user) {
       return addNewUser(req, res)
     }
+    const userType = user.type ?? 'user';
 
-    const token = generateToken(user._id, user.mobileNo)
-    return res.status(200).json({ data: { token, user, isNew: false }, code: 200,  status_code: "success", message: "User updated successfully." })
+    const token = generateToken(user._id, user.mobileNo, userType);
+    return res.status(200).json({ data: { token, user, isNew: false, userType: userType }, code: 200,  status_code: "success", message: "User updated successfully." })
 
   } catch (error) {
     res.status(500).json({ code: 500,  status_code: "error", error: 'An error occurred while updating the mobile number' });
@@ -54,9 +55,9 @@ const addNewUser = async (req, res) => {
       isVerified: true
     })
     await newUser.save();
-    const token = generateToken(newUser._id, newUser.mobileNo)
-
-    return res.status(201).json({ data: { token, user: newUser, isNew: true }, code: 200,  status_code: "success", message: "User added successfully." })
+    const userType = newUser.type ?? 'user';
+    const token = generateToken(newUser._id, newUser.mobileNo, userType);
+    return res.status(201).json({ data: { token, user: newUser, isNew: true, userType: userType}, code: 200,  status_code: "success", message: "User added successfully." })
   } catch (error) {
     res.status(500).json({ code: 500,  status_code: "error", error: 'Enter correct mobile number' });
   }
