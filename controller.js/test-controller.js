@@ -109,7 +109,8 @@ const submitResult = async (req, res) => {
                 userId: req.user.userId,
                 testId: test._id,
                 score: scoreCount,
-                rank: null
+                rank: null,
+                duration: data.duration ?? 0
               }
               const newResult = new Result(resResult)
               await newResult.save();
