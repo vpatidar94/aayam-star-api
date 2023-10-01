@@ -21,11 +21,15 @@ const resultSchema = new Schema({
     rank: {
         type: Number,
     },
+    points: {
+        type: Number,
+    },
     duration: {
         type: Number,
     },
-    submitDate: {
-        type: Date
+    dateCreated: {
+        type: Date,
+        default: Date.now
     },    
 })
 

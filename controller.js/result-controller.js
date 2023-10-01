@@ -1,12 +1,13 @@
 const Result = require("../model/Result");
 const Test = require("../model/Test");
+const User = require("../model/User");
 
 const getResultDashboard = async (req, res) => {
   try {
     // Get the score of last test given
     const lastTest = await Result.find({userId : req.user.userId})
     .populate('testId')
-    .sort({ 'submitDate': 1 })
+    .sort({ 'dateCreated': -1 })
     
     try {
         const currentDate = new Date();
@@ -38,6 +39,7 @@ const getResultDashboard = async (req, res) => {
             return res.status(200).json(
               { 
                 data: {
+                  allTestSort: lastTest,
                   lastTestResult: lastTest.length > 0 ? lastTest[0] : null,
                   todaysTest: todaysTest[0],
                   todaysTestIsAttempted: isAvailable?.length > 0 ? true : false,
@@ -55,6 +57,7 @@ const getResultDashboard = async (req, res) => {
           return res.status(200).json(
             { 
               data: {
+                allTestSort: lastTest,
                 lastTestResult: lastTest.length > 0 ? lastTest[0] : null,
                 todaysTest: null,
                 todaysTestIsAttempted: null,
@@ -84,10 +87,17 @@ const generateRank = async (req, res) => {
 
      // Update the rank field based on the sorted order
      let rank = 1;
-     for (const score of sortedScores) {
-       score.rank = rank++;
+     let lastStuRes = null;
+     for (const std of sortedScores) {
+      if(!(lastStuRes && lastStuRes?.score === std.score && lastStuRes?.duration === std.duration)){
+        rank++;
+      }
+       lastStuRes = std;
+       std.rank = std.score === 0 ? 0 : rank;
+       const points = ((1-(std.rank/sortedScores.length))*100).toFixed(2);
+       std.points = std.score === 0 ? 0 : points;
        // Save the updated rank to the database
-       await score.save();
+       await std.save();
      }
  
      res.status(200).json({
@@ -122,7 +132,31 @@ const getResultByTest = async (req, res) => {
   }
 }
 
+const getAllScorePoints = async (req, res) => {  
+  const { testId } =  req.params; 
+  try {
+    // Get the score of last test given
+    const user = await User.find({_id : req.user.userId})
+
+    const results = await Result.find({userId : req.user.userId})
+
+     res.status(200).json({
+       data: {
+        tests: results,
+        userReferralPoints: user && user?.length>0 && user[0]?.referralPoints ? user[0]?.referralPoints : 0
+       },
+       code: 200,
+       status_code: 'success',
+       message: 'Score points details fetched successfully.',
+     });
+    
+  } catch (error) {
+    res.status(500).json({ code: 500,  status_code: "error", error: 'Error fetching the records.' });
+  }
+}
+
 
 exports.getResultDashboard = getResultDashboard;
 exports.generateRank = generateRank;
 exports.getResultByTest = getResultByTest;
+exports.getAllScorePoints = getAllScorePoints;

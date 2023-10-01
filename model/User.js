@@ -30,6 +30,14 @@ const userSchema = new Schema({
     type: {
         type: String,
         default: 'user'
+    },
+    referredBy: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+    },
+    referralPoints: {
+        type: Number,
+        default: 0
     }
 })
 

@@ -43,20 +43,42 @@ const addUpdateUser = async (req, res) => {
 }
 
 const addNewUser = async (req, res) => {
-  const { mobileNo } = req.body;
+  const { mobileNo, referredBy } = req.body;
 
   if ((!mobileNo)) {
     return res.status(400).json({ code: 400,  status_code: "error", message: "Mobile number is required." })
   }
 
   try {
+    console.log('referring user', referredBy);
+    const referringUser = null;
+    if(referredBy){
+      const referringUser = await User.findById(referredBy);
+      console.log('referring user 1', referringUser);
+      if (!referringUser) {
+        console.log('Referring user not found');
+        return;
+      }
+
+      // Update the user's referredBy field with the referring user's ID
+      // referringUser = referringUser._id; 
+      referringUser.referralPoints = (referringUser?.referralPoints ?? 0) + 20;
+      console.log('referring user 2 > referral points', referringUser.referralPoints);
+
+      await referringUser.save();
+    }
+
     const newUser = new User({
       mobileNo,
-      isVerified: true
-    })
+      isVerified: true,
+      referredBy: referringUser ? referringUser._id : null
+    });
+
     await newUser.save();
     const userType = newUser.type ?? 'user';
     const token = generateToken(newUser._id, newUser.mobileNo, userType);
+    console.log('referring user 3 > new user points', newUser);
+
     return res.status(201).json({ data: { token, user: newUser, isNew: true, userType: userType}, code: 200,  status_code: "success", message: "User added successfully." })
   } catch (error) {
     res.status(500).json({ code: 500,  status_code: "error", error: 'Enter correct mobile number' });
