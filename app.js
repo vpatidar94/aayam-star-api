@@ -38,7 +38,7 @@ mongoose.connect(
         console.log(`connected on ${port}`)
     })
 ).catch((err)=>{
-    console.log("mongoose error:")
+    console.log("mongoose error:",err);
 })
 
 // handle CORS

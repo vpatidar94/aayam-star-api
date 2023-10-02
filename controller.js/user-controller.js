@@ -38,6 +38,7 @@ const addUpdateUser = async (req, res) => {
     return res.status(200).json({ data: { token, user, isNew: false, userType: userType }, code: 200,  status_code: "success", message: "User updated successfully." })
 
   } catch (error) {
+    console.log('e2', error);
     res.status(500).json({ code: 500,  status_code: "error", error: 'An error occurred while updating the mobile number' });
   }
 }
@@ -81,6 +82,7 @@ const addNewUser = async (req, res) => {
 
     return res.status(201).json({ data: { token, user: newUser, isNew: true, userType: userType}, code: 200,  status_code: "success", message: "User added successfully." })
   } catch (error) {
+    console.log('e', error);
     res.status(500).json({ code: 500,  status_code: "error", error: 'Enter correct mobile number' });
   }
 }
@@ -99,6 +101,7 @@ const addUser = async (req, res) => {
     await newUser.save();
     return res.status(201).json({ data: newUser, code: 200,  status_code: "success", message: "User added successfully." })
   } catch (error) {
+    console.log('e', error);
     if (error.code === 11000) {
       // Duplicate key error (unique constraint violation)
       res.status(400).json({ code: 400, status_code: "error", error: 'Username or email already exists' });
