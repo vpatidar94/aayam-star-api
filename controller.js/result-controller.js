@@ -89,12 +89,15 @@ const generateRank = async (req, res) => {
      let rank = 1;
      let lastStuRes = null;
      for (const std of sortedScores) {
-      if(!(lastStuRes && lastStuRes?.score === std.score && lastStuRes?.duration === std.duration)){
-        rank++;
+      if(lastStuRes != null){
+        if(!(lastStuRes?.score === std.score && lastStuRes?.duration === std.duration)){
+          rank++;
+        }
       }
        lastStuRes = std;
        std.rank = std.score === 0 ? 0 : rank;
-       const points = ((1-(std.rank/sortedScores.length))*100).toFixed(2);
+      //  const points = ((1-((std.rank+1)/sortedScores.length))*100).toFixed(2); // old formulae
+       const points = (((sortedScores.length-rank+1)/sortedScores.length)*100).toFixed(2); // new formulae
        std.points = std.score === 0 ? 0 : points;
        // Save the updated rank to the database
        await std.save();
