@@ -1,6 +1,8 @@
 const Result = require("../model/Result");
 const Test = require("../model/Test");
 const User = require("../model/User");
+const { sendRank } = require('../services/whatsapp-service');
+
 
 const getResultDashboard = async (req, res) => {
   try {
@@ -100,7 +102,7 @@ const generateRank = async (req, res) => {
        const points = (((sortedScores.length-rank+1)/sortedScores.length)*100).toFixed(2); // new formulae
        std.points = std.score === 0 ? 0 : points;
        // Save the updated rank to the database
-       await std.save();
+       await std.save();      
      }
  
      res.status(200).json({
@@ -108,6 +110,34 @@ const generateRank = async (req, res) => {
        code: 200,
        status_code: 'success',
        message: 'Rank generated successfully.',
+     });
+    
+  } catch (error) {
+    res.status(500).json({ code: 500,  status_code: "error", error: 'Wrong test id.' });
+  }
+}
+
+const sendWpMessage = async (req, res) => {  
+  const { testId } =  req.params; 
+  try {
+    // Get the score of last test given
+    const results = await Result.find({testId : testId});
+
+    for (const std of results) {
+        try {
+          const user = await User.find({_id : std.userId});
+          if(user.length > 0 && !!user[0]?.mobileNo)
+            await sendRank(user[0], std, results.length);
+        } catch (error) {
+          console.error('Error sending WhatsApp message:', error);
+        }
+     }
+ 
+     res.status(200).json({
+       data: results,
+       code: 200,
+       status_code: 'success',
+       message: 'Whatsapp messages send successfully.',
      });
     
   } catch (error) {
@@ -163,3 +193,4 @@ exports.getResultDashboard = getResultDashboard;
 exports.generateRank = generateRank;
 exports.getResultByTest = getResultByTest;
 exports.getAllScorePoints = getAllScorePoints;
+exports.sendWpMessage = sendWpMessage;
