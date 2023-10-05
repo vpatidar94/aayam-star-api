@@ -23,7 +23,7 @@ const sendRank = async (user, std, outOf) => {
                             },
                             {
                                 "type": "text",
-                                "text": "last test" + '', //out of outOf
+                                "text": "Test 1" + '', //out of outOf
                             },
                             {
                                 "type": "text",
