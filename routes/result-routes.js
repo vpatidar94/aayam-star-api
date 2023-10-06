@@ -12,5 +12,5 @@ router.get("/getAllScorePoints", verifyToken, getAllScorePoints);
 router.get("/generateRank/:testId", verifyAdminToken, generateRank);
 router.get("/getResultByTest/:testId", verifyAdminToken, getResultByTest);
 
-router.get("/sendWpMessage/:testId", verifyAdminToken, sendWpMessage);
+router.post("/sendWpMessage", verifyAdminToken, sendWpMessage);
 module.exports = router;

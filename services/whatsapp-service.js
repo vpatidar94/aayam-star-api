@@ -1,7 +1,7 @@
 const http = require('http');
 const https = require('https');
 
-const sendRank = async (user, std, outOf) => {
+const sendRank = async (user, std, outOf, title, totalPoints) => {
     try {
         const payload = {
             "to": '91' + user.mobileNo,
@@ -23,7 +23,7 @@ const sendRank = async (user, std, outOf) => {
                             },
                             {
                                 "type": "text",
-                                "text": "Test 1" + '', //out of outOf
+                                "text": title + '', //out of outOf
                             },
                             {
                                 "type": "text",
@@ -35,7 +35,7 @@ const sendRank = async (user, std, outOf) => {
                             },
                             {
                                 "type": "text",
-                                "text": "-"
+                                "text": totalPoints + '',
                             },
                             {
                                 "type": "text",
