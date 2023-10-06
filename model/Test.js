@@ -46,6 +46,10 @@ const test = new Schema({
     },
     resultDate: {
         type: Date,
+    },
+    isRankGenerated: {
+        type: Boolean,
+        default: false,
     }
 })
 

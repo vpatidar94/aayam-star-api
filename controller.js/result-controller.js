@@ -105,6 +105,14 @@ const generateRank = async (req, res) => {
       std.points = std.score === 0 ? 0 : points;
       // Save the updated rank to the database
       await std.save();
+
+      const testTable = await Test.findOne({ _id: testId });
+      if (testTable) {
+        console.log('tt', testTable.isRankGenerated);
+        testTable.isRankGenerated = true;
+        console.log('newtt', testTable.isRankGenerated);
+        await testTable.save();
+      }
     }
 
     res.status(200).json({
@@ -122,16 +130,18 @@ const generateRank = async (req, res) => {
 const sendWpMessage = async (req, res) => {
   const data = req.body;
   const { testId, title } = data;
+
   try {
     // Get the score of last test given
     const results = await Result.find({ testId: testId });
+    const totalStudents = results.length * 10;
     for (const std of results) {
       try {
         const user = await User.find({ _id: std.userId });
         const userId = std.userId;
         const totalPoints = await resultService.calculateTotalPoints(userId);
         if (user.length > 0 && !!user[0]?.mobileNo)
-          await sendRank(user[0], std, results.length, title, totalPoints);
+          await sendRank(user[0], std, totalStudents, title, totalPoints);
       } catch (error) {
         console.error('Error sending WhatsApp message:', error);
       }
