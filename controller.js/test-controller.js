@@ -27,7 +27,6 @@ const addTest = async (req, res) => {
 const getTest = async (req, res) => {
   try {
     const { testId } = req.params;
-
     if (!testId) {
       return res.status(400).json({ code: 400, status_code: "error", error: 'Test id required' });
     }
@@ -37,7 +36,7 @@ const getTest = async (req, res) => {
     }
     else{
       const testIdCheck = test[0]._id.toString()
-      const isTestAttempted = await Result.findOne({ testId: testIdCheck });
+      const isTestAttempted = await Result.findOne({ testId: testIdCheck, userId: req.user.userId });
       if (isTestAttempted) {
         return res.status(452).json({ code: 452, status_code: "error", error: 'Test Already Attempted' });
       }
