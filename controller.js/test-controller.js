@@ -9,6 +9,9 @@ const addTest = async (req, res) => {
         }
         
         try {
+            // console.log('body', req.body);
+            // console.log('body', req.body.testId);
+
             const newTest = new Test({
                 ...data
             })
