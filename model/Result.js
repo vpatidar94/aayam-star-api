@@ -30,7 +30,7 @@ const resultSchema = new Schema({
     dateCreated: {
         type: Date,
         default: Date.now
-    },    
+    },
 })
 
 module.exports = mongoose.model("Result", resultSchema);
