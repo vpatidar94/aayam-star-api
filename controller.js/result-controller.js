@@ -15,22 +15,34 @@ const getResultDashboard = async (req, res) => {
 
     try {
       const currentDate = new Date();
+      currentDate.setMinutes(currentDate.getMinutes() - currentDate.getTimezoneOffset());
+
       const startDate = new Date(
         currentDate.getUTCFullYear(),
         currentDate.getUTCMonth(),
         currentDate.getUTCDate(),
-        0 + 5,
-        30,
+        0,
+        0,
         0
       ); // Start of the day
       const endDate = new Date(
         currentDate.getUTCFullYear(),
         currentDate.getUTCMonth(),
         currentDate.getUTCDate(),
-        23 + 5,
-        59 + 30,
+        23,
+        59,
         59
       ); // End of the day
+
+      console.log('current>', currentDate);
+      console.log('start>', startDate);
+      console.log('end>', endDate);
+
+      startDate.setMinutes(startDate.getMinutes() - startDate.getTimezoneOffset());
+      endDate.setMinutes(endDate.getMinutes() - endDate.getTimezoneOffset());
+
+      console.log('start Update>', startDate);
+      console.log('end Update>', endDate);
 
       const todaysTest = await Test.find({
         testDate: {
