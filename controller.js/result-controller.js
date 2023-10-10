@@ -11,7 +11,7 @@ const getResultDashboard = async (req, res) => {
       .populate('testId')
       .sort({ 'dateCreated': -1 })
 
-    const user = await User.find({_id : req.user.userId});
+    const user = await User.find({ _id: req.user.userId });
 
     try {
       const currentDate = new Date();
@@ -54,26 +54,26 @@ const getResultDashboard = async (req, res) => {
       if (todaysTest && todaysTest.length > 0 && todaysTest[0]?._id) {
         const userStream = user && user.length > 0 ? user[0].stream : null;
 
-        let currentTestIndex = todaysTest.findIndex(x=> userStream === x.stream && (x.subjectName === 'Maths' || x.subjectName === 'Biology'));
+        let currentTestIndex = todaysTest.findIndex(x => userStream === x.stream && (x.subjectName === 'Maths' || x.subjectName === 'Biology'));
         const currentTest = currentTestIndex != -1 ? todaysTest[currentTestIndex] : todaysTest[0];
 
         try {
-          const isAvailable = await Result.find({testId : currentTest._id, userId: req.user.userId});  
+          const isAvailable = await Result.find({ testId: currentTest._id, userId: req.user.userId });
           return res.status(200).json(
-            { 
+            {
               data: {
                 allTestSort: lastTest,
                 lastTestResult: lastTest.length > 0 ? lastTest[0] : null,
                 todaysTest: currentTest,
                 todaysTestIsAttempted: isAvailable?.length > 0 ? true : false,
-              }, 
-              code: 200,  
-              status_code: "success", 
+              },
+              code: 200,
+              status_code: "success",
               message: "Score added successfully."
             }
           )
         } catch (error) {
-          res.status(500).json({ code: 500,  status_code: "error", error: 'An error occurred while fetching the todays test details' });
+          res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while fetching the todays test details' });
         }
       }
       else {
@@ -198,6 +198,53 @@ const getResultByTest = async (req, res) => {
   }
 }
 
+const getAllResultsDetails = async (req, res, next) => {
+  try {
+    const results = await Result.aggregate([
+      {
+        $group: {
+          _id: "$userId",
+          totalTestPoints: { $sum: "$points" },
+          totalTests: { $sum: 1 } // Count the number of tests per user
+        }
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "_id",
+          foreignField: "_id",
+          as: "userDetails"
+        }
+      },
+      {
+        $unwind: "$userDetails"
+      },
+      {
+        $project: {
+          userId: "$_id",
+          totalTestPoints: 1,
+          totalTests: 1,
+          userDetails: {
+            name: 1,
+            mobileNo: 1,
+            stream: 1,
+            referralPoints: 1
+            // Add more fields as needed
+          }
+        }
+      }
+    ]);
+
+    if (!results) {
+      return res.status(500).json({ code: "error", message: "Internal Server Error" });
+    }
+
+    return res.status(200).json({ data: results, code: "success", message: "Data fetched successfully." });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 const getAllScorePoints = async (req, res) => {
   const { testId } = req.params;
   try {
@@ -227,3 +274,4 @@ exports.generateRank = generateRank;
 exports.getResultByTest = getResultByTest;
 exports.getAllScorePoints = getAllScorePoints;
 exports.sendWpMessage = sendWpMessage;
+exports.getAllResultsDetails = getAllResultsDetails;

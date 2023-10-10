@@ -1,23 +1,21 @@
 const User = require("../model/User")
-
-// 
 const { generateToken, verifyToken } = require('../middleware/jwt-token');
 // const fetchIdByToken = require('../services/token');
 
-// const getAllUsers = async (req, res, next) => {
-//     let users = ''
-//     try {
-//         users = await User.find();
-//     } catch (err) {
-//         return next(err)
-//     }
+const getAllUsers = async (req, res, next) => {
+    let users = ''
+    try {
+        users = await User.find();
+    } catch (err) {
+        return next(err)
+    }
 
-//     if(!users){
-//         return res.status(500).json({ code: "error",  message: "Internal Server Error"});
-//     }
+    if(!users){
+        return res.status(500).json({ code: "error",  message: "Internal Server Error"});
+    }
 
-//     return res.status(200).json({data: users, code: "success", message: "Data fetched successfully."})
-// }
+    return res.status(200).json({data: users, code: "success", message: "Data fetched successfully."})
+}
 
 const addUpdateUser = async (req, res) => {
   try {
@@ -164,3 +162,4 @@ exports.addUser = addUser;
 exports.addUpdateUser = addUpdateUser;
 exports.updateName = updateName;
 exports.addScore = addScore;
+exports.getAllUsers = getAllUsers;
