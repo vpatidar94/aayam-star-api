@@ -12,7 +12,7 @@ const resultRouter = require("./routes/result-routes");
 app.use(express.json());
 
 // Use the CORS handler --------
-const allowedOrigins = ['http://localhost:4200', 'https://aayam-star-web-am22e.ondigitalocean.app'];
+const allowedOrigins = ['http://localhost:4200', 'https://aayam-star-web-am22e.ondigitalocean.app', 'https://star.aayamcareerinstitute.com'];
 const corsOptions = {
     origin: function (origin, callback) {
       if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
