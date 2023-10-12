@@ -47,7 +47,26 @@ const getTest = async (req, res) => {
   }
 }
 
+const deleteTest = async(req,res) => {
+  try {
+     console.log(req)
+    const {id} = req.params;
+    
+    if (!id) {
+      return res.status(400).json({ code: 400, status_code: "error", error: 'Test id required' });
+    }
+    const test = await Test.findByIdAndDelete(id)
+    if (!test) {
+      return res.status(500).json({ message: "unable to delete test" });
+    }
+    return res.status(200).json({data:test, code:200, status_code: "success", message:" Test deleted successfully"})
+  }
+  catch(error){
+    res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while fetching the test details' });
+  }
+}
 const getAllTest = async (req, res) => {
+  console.log(req)
   try {
     // const { testId } =  req.params;
     // if (!testId) {
@@ -143,3 +162,4 @@ exports.getTestDetail = getTestDetail;
 
 exports.getAllTest = getAllTest;
 exports.submitResult = submitResult;
+exports.deleteTest = deleteTest;

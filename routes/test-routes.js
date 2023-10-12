@@ -1,6 +1,6 @@
 const express = require("express");
 const { verifyToken, verifyAdminToken } = require("../middleware/jwt-token");
-const { addTest, getTest, submitResult, getAllTest, getTestDetail } = require("../controller.js/test-controller");
+const { addTest, getTest, submitResult, getAllTest, getTestDetail, deleteTest } = require("../controller.js/test-controller");
 const router = express.Router();
 
 // protected routes
@@ -11,5 +11,5 @@ router.post("/submitResult", verifyToken, submitResult);
 // admin routes
 router.post("/addTest", verifyAdminToken, addTest);
 router.get("/getAllTest", verifyAdminToken, getAllTest);
-
+router.delete("/deleteTest/:id", deleteTest)
 module.exports = router;
