@@ -31,6 +31,10 @@ const resultSchema = new Schema({
         type: Date,
         default: Date.now
     },
+    studentResponse:{
+        type: Array,
+        default: []
+    }
 })
 
 module.exports = mongoose.model("Result", resultSchema);

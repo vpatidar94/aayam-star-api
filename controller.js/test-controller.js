@@ -117,7 +117,6 @@ const submitResult = async (req, res) => {
       const test = await Test.findOne(
         { id: data.testId }
       );
-
       let scoreCount = 0;
       if (test) {
         test.questions.forEach(element => {
@@ -133,7 +132,8 @@ const submitResult = async (req, res) => {
             testId: test._id,
             score: scoreCount,
             rank: null,
-            duration: data.duration ?? 0
+            duration: data.duration ?? 0,
+            studentResponse: reqQuestions
           }
           const newResult = new Result(resResult)
           await newResult.save();
