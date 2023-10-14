@@ -120,7 +120,7 @@ const submitResult = async (req, res) => {
       let scoreCount = 0;
       if (test) {
         test.questions.forEach(element => {
-          const index = reqQuestions.some(x => x.id === element.id && x?.answer === element?.correctAnswer);
+          const index = reqQuestions.some(x => x.id === element.id && x?.studentAnswer === element?.correctAnswer);
           if (index) {
             scoreCount++;
           }
