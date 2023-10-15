@@ -28,6 +28,10 @@ app.use("/users", cors(corsOptions), userRouter);
 app.use("/test", cors(corsOptions), testRouter);
 app.use("/result", cors(corsOptions), resultRouter);
 
+// cron routes ------------------ (Remove once done)
+const cronRouter = require("./routes/cron-routes");
+app.use("/cron", cors(corsOptions), cronRouter);
+
 // Mongoose connection ----------
 const databaseURL = process.env.DATABASE_URL;
 const port = process.env.PORT || 5000;

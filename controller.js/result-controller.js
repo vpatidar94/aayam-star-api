@@ -54,7 +54,8 @@ const getResultDashboard = async (req, res) => {
       if (todaysTest && todaysTest.length > 0 && todaysTest[0]?._id) {
         const userStream = user && user.length > 0 ? user[0].stream : null;
 
-        let currentTestIndex = todaysTest.findIndex(x => userStream === x.stream && (x.subjectName === 'Maths' || x.subjectName === 'Biology'));
+        let currentTestIndex = todaysTest.findIndex(x => x.stream.includes(userStream));
+
         const currentTest = currentTestIndex != -1 ? todaysTest[currentTestIndex] : todaysTest[0];
 
         try {

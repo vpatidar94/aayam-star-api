@@ -20,7 +20,7 @@ const test = new Schema({
         required: true,
     },
     stream: {
-        type: String,
+        type: Array,
         required: true,
     },
     active: {
