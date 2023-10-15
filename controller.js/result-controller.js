@@ -11,8 +11,7 @@ const getResultDashboard = async (req, res) => {
       .populate('testId')
       .sort({ 'dateCreated': -1 })
 
-    const user = await User.find({ _id: req.user.userId });
-
+    const user = await User.findOne({ _id: req.user.userId });
     try {
       const currentDate = new Date();
       currentDate.setMinutes(currentDate.getMinutes() - currentDate.getTimezoneOffset());
@@ -32,17 +31,10 @@ const getResultDashboard = async (req, res) => {
         23,
         59,
         59
-      ); // End of the day
-
-      console.log('current>', currentDate);
-      console.log('start>', startDate);
-      console.log('end>', endDate);
+      ); // End of the day      
 
       startDate.setMinutes(startDate.getMinutes() - startDate.getTimezoneOffset());
       endDate.setMinutes(endDate.getMinutes() - endDate.getTimezoneOffset());
-
-      console.log('start Update>', startDate);
-      console.log('end Update>', endDate);
 
       const todaysTest = await Test.find({
         testDate: {
@@ -52,14 +44,15 @@ const getResultDashboard = async (req, res) => {
       });
       // if results are available then check it is attempted by user or not
       if (todaysTest && todaysTest.length > 0 && todaysTest[0]?._id) {
-        const userStream = user && user.length > 0 ? user[0].stream : null;
+        const userStream = user && user?.stream ? user.stream : null;
 
         let currentTestIndex = todaysTest.findIndex(x => x.stream.includes(userStream));
-
-        const currentTest = currentTestIndex != -1 ? todaysTest[currentTestIndex] : todaysTest[0];
+        const currentTest = currentTestIndex != -1 ? todaysTest[currentTestIndex] : null;
 
         try {
-          const isAvailable = await Result.find({ testId: currentTest._id, userId: req.user.userId });
+          let isAvailable = null;
+          if(currentTest)
+            isAvailable = await Result.find({ testId: currentTest._id, userId: req.user.userId });
           return res.status(200).json(
             {
               data: {
