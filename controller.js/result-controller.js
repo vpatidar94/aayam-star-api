@@ -199,6 +199,26 @@ const getResultByTest = async (req, res) => {
   }
 }
 
+const getTestResultByUser = async (req, res) => {
+  const userId = req.user.userId;
+  const { testId} = req.params;
+  // const {userId} = req.user.userId
+  try {
+    // Get the score of last test given
+    const result = await Result.find({ testId: testId , userId: userId})
+
+    res.status(200).json({
+      data: result,
+      code: 200,
+      status_code: 'success',
+      message: 'Result details fetched successfully.',
+    });
+
+  } catch (error) {
+    res.status(500).json({ code: 500, status_code: "error", error: 'Wrong test id.' });
+  }
+}
+
 const getAllResultsDetails = async (req, res, next) => {
   try {
     const results = await Result.aggregate([
@@ -276,3 +296,4 @@ exports.getResultByTest = getResultByTest;
 exports.getAllScorePoints = getAllScorePoints;
 exports.sendWpMessage = sendWpMessage;
 exports.getAllResultsDetails = getAllResultsDetails;
+exports.getTestResultByUser = getTestResultByUser;
