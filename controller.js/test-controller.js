@@ -49,7 +49,6 @@ const getTest = async (req, res) => {
 
 const deleteTest = async(req,res) => {
   try {
-     console.log(req)
     const {id} = req.params;
     
     if (!id) {
@@ -66,7 +65,6 @@ const deleteTest = async(req,res) => {
   }
 }
 const getAllTest = async (req, res) => {
-  console.log(req)
   try {
     // const { testId } =  req.params;
     // if (!testId) {
