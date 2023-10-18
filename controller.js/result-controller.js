@@ -305,7 +305,7 @@ const getAllResultsDetails = async (req, res, next) => {
         }
       },
       {
-        $sort: { totalPoints: -1 }
+        $sort: { totalPoints: -1, totalTests: -1 }
       }
     ]);
     
