@@ -51,7 +51,7 @@ const getResultDashboard = async (req, res) => {
 
         try {
           let isAvailable = null;
-          if(currentTest)
+          if (currentTest)
             isAvailable = await Result.find({ testId: currentTest._id, userId: req.user.userId });
           return res.status(200).json(
             {
@@ -112,9 +112,12 @@ const generateRank = async (req, res) => {
         }
       }
       lastStuRes = std;
-      std.rank = std.score === 0 ? 0 : rank;
+      // std.rank = std.score === 0 ? 0 : rank;
+      // Adjust the rank calculation with the multiplier of 11/4
+      const rankMultiplier = 2.47;
+      std.rank = std.score === 0 ? 0 : Math.ceil(rank * rankMultiplier);
       //  const points = ((1-((std.rank+1)/sortedScores.length))*100).toFixed(2); // old formulae
-      const points = (((sortedScores.length - rank + 1) / sortedScores.length) * 100).toFixed(2); // new formulae
+      const points = (((Math.ceil(sortedScores.length * 11/4.2)- std.rank + 1) / Math.ceil(sortedScores.length * 11/4)) * 100).toFixed(2); // new formulae
       std.points = std.score === 0 ? 0 : points;
       // Save the updated rank to the database
       await std.save();
@@ -139,6 +142,52 @@ const generateRank = async (req, res) => {
     res.status(500).json({ code: 500, status_code: "error", error: 'Wrong test id.' });
   }
 }
+
+// const generateRank = async (req, res) => {
+//   const { testId } = req.params;
+//   try {
+//     // Get the score of last test given
+//     const sortedScores = await Result.find({ testId: testId })
+//       .sort({ score: -1, duration: 1 })
+//       .exec();
+
+//     // Update the rank field based on the sorted order
+//     let rank = 1;
+//     let lastStuRes = null;
+//     for (const std of sortedScores) {
+//       if (lastStuRes != null) {
+//         if (!(lastStuRes?.score === std.score && lastStuRes?.duration === std.duration)) {
+//           rank++;
+//         }
+//       }
+//       lastStuRes = std;
+//       std.rank = std.score === 0 ? 0 : rank;
+//       //  const points = ((1-((std.rank+1)/sortedScores.length))*100).toFixed(2); // old formulae
+//       const points = (((sortedScores.length - rank + 1) / sortedScores.length) * 100).toFixed(2); // new formulae
+//       std.points = std.score === 0 ? 0 : points;
+//       // Save the updated rank to the database
+//       await std.save();
+
+//       const testTable = await Test.findOne({ _id: testId });
+//       if (testTable) {
+//         console.log('tt', testTable.isRankGenerated);
+//         testTable.isRankGenerated = true;
+//         console.log('newtt', testTable.isRankGenerated);
+//         await testTable.save();
+//       }
+//     }
+
+//     res.status(200).json({
+//       data: sortedScores,
+//       code: 200,
+//       status_code: 'success',
+//       message: 'Rank generated successfully.',
+//     });
+
+//   } catch (error) {
+//     res.status(500).json({ code: 500, status_code: "error", error: 'Wrong test id.' });
+//   }
+// }
 
 const sendWpMessage = async (req, res) => {
   const data = req.body;
@@ -194,11 +243,11 @@ const getResultByTest = async (req, res) => {
 
 const getTestResultByUser = async (req, res) => {
   const userId = req.user.userId;
-  const { testId} = req.params;
+  const { testId } = req.params;
   // const {userId} = req.user.userId
   try {
     // Get the score of last test given
-    const result = await Result.find({ testId: testId , userId: userId})
+    const result = await Result.find({ testId: testId, userId: userId })
 
     res.status(200).json({
       data: result,
@@ -260,7 +309,7 @@ const getTestResultByUser = async (req, res) => {
 // }
 
 
-    //  <!----new api-------------------->
+//  <!----new api-------------------->
 const getAllResultsDetails = async (req, res, next) => {
   try {
     const results = await User.aggregate([
@@ -308,7 +357,7 @@ const getAllResultsDetails = async (req, res, next) => {
         $sort: { totalPoints: -1, totalTests: -1 }
       }
     ]);
-    
+
 
     if (!results) {
       return res.status(500).json({ code: "error", message: "Internal Server Error" });
