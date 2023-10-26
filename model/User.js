@@ -46,6 +46,9 @@ const userSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Organisation',
     },
+    designation: {
+        type: String,
+    }
 
 })
 

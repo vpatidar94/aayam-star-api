@@ -260,43 +260,55 @@ const getTestResultByUser = async (req, res) => {
     res.status(500).json({ code: 500, status_code: "error", error: 'Wrong test id.' });
   }
 }
-
+//  <!----new api-------------------->
 // const getAllResultsDetails = async (req, res, next) => {
 //   try {
-//     const results = await Result.aggregate([
-//       {
-//         $group: {
-//           _id: "$userId",
-//           totalTestPoints: { $sum: "$points" },
-//           totalTests: { $sum: 1 } // Count the number of tests per user
-//         }
-//       },
+//     const results = await User.aggregate([
 //       {
 //         $lookup: {
-//           from: "users",
+//           from: "results",
 //           localField: "_id",
-//           foreignField: "_id",
-//           as: "userDetails"
+//           foreignField: "userId",
+//           as: "userResults"
 //         }
-//       },
-//       {
-//         $unwind: "$userDetails"
 //       },
 //       {
 //         $project: {
 //           userId: "$_id",
-//           totalTestPoints: 1,
-//           totalTests: 1,
-//           userDetails: {
-//             name: 1,
-//             mobileNo: 1,
-//             stream: 1,
-//             referralPoints: 1
-//             // Add more fields as needed
+//           name: 1,
+//           mobileNo: 1,
+//           stream: 1,
+//           referralPoints: 1,
+//           totalTestPoints: { $sum: "$userResults.points" },
+//           totalTests: {
+//             $sum: {
+//               $cond: [
+//                 { $isArray: "$userResults" },
+//                 { $size: "$userResults" },
+//                 0
+//               ]
+//             }
 //           }
 //         }
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: 1,
+//           name: 1,
+//           mobileNo: 1,
+//           stream: 1,
+//           referralPoints: 1,
+//           totalTestPoints: 1,
+//           totalTests: 1,
+//           totalPoints: { $sum: ["$totalTestPoints", "$referralPoints"] }
+//         }
+//       },
+//       {
+//         $sort: { totalPoints: -1, totalTests: -1 }
 //       }
 //     ]);
+
 
 //     if (!results) {
 //       return res.status(500).json({ code: "error", message: "Internal Server Error" });
@@ -308,11 +320,11 @@ const getTestResultByUser = async (req, res) => {
 //   }
 // }
 
-
-//  <!----new api-------------------->
 const getAllResultsDetails = async (req, res, next) => {
   try {
-    const results = await User.aggregate([
+    const orgCode = req.user.orgCode; // Assuming the orgCode is available in the token
+    console.log(req.user)
+    const pipeline = [
       {
         $lookup: {
           from: "results",
@@ -356,8 +368,18 @@ const getAllResultsDetails = async (req, res, next) => {
       {
         $sort: { totalPoints: -1, totalTests: -1 }
       }
-    ]);
+    ];
 
+    // Conditionally add $match stage if orgCode is present in the token
+    if (orgCode) {
+      pipeline.unshift({
+        $match: {
+          orgCode: orgCode
+        }
+      });
+    }
+
+    const results = await User.aggregate(pipeline);
 
     if (!results) {
       return res.status(500).json({ code: "error", message: "Internal Server Error" });
@@ -367,8 +389,7 @@ const getAllResultsDetails = async (req, res, next) => {
   } catch (err) {
     return next(err);
   }
-}
-
+};
 
 
 const getAllScorePoints = async (req, res) => {
