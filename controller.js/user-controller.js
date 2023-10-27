@@ -32,8 +32,8 @@ const addUpdateUser = async (req, res) => {
       return addNewUser(req, res)
     }
     const userType = user.type ?? 'user';
-    const orgCode = user.orgCode ?? user.orgCode;
-    const token = generateToken(user._id, user.mobileNo, userType, orgCode );
+    const orgCode = user.orgCode ?? null;
+    const token = generateToken(user._id, user.mobileNo, userType, orgCode);
     return res.status(200).json({ data: { token, user, isNew: false, userType: userType }, code: 200, status_code: "success", message: "User updated successfully." })
 
   } catch (error) {
@@ -195,37 +195,47 @@ const addOrgAdminUser = async (req, res) => {
     const adminUser = await User.findOne({ mobileNo: mobileNo });
 
     if (!adminUser) {
+      const orgExist = await Organisation.findOne({ orgCode: orgCode });
+      if(!orgExist){
+        return res.status(400).json({ error: 'Organisation does not exist. Contact admin.' });
+      }
       // If admin user doesn't exist, add a new admin user
-      return addOrgNewAdminUser(req, res);
+      return addOrgNewAdminUser(req, res, orgExist?._id);
     }
-
-    const adminUserType = adminUser.type ?? 'admin';
-    const token = generateToken(adminUser._id, adminUser.mobileNo, adminUserType, orgCode);
-
-    return res.status(200).json({ data: { token, adminUser, isNew: false, adminUserType: adminUserType, }, code: 200, status_code: "success", message: "User updated successfully." });
+    
+    return res.status(502).json({ code: 502, status_code: "error", error: 'User already exist. Login directly.' });
   } catch (error) {
     console.log('Error:', error);
     res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while updating the mobile number' });
   }
 };
 
-const addOrgNewAdminUser = async (req, res) => {
+const addOrgNewAdminUser = async (req, res, orgId) => {
   const { mobileNo, orgCode } = req.body;
-
-  if (!mobileNo) {
-    return res.status(400).json({ code: 400, status_code: "error", message: "Mobile number is required." });
-  }
-
   try {
+    const userType = 'org-admin';
     const newAdminUser = new User({
       mobileNo,
       isVerified: true,
-      type: 'admin'
+      type: userType,
+      orgCode: orgCode,
+      organisationId: orgId
     });
-    const adminUserType = newAdminUser.type ?? 'admin';
     await newAdminUser.save();
-    const token = generateToken(newAdminUser._id, newAdminUser.mobileNo, adminUserType, orgCode);
-    return res.status(201).json({ data: { token, user: newAdminUser, isNew: true, userType: adminUserType }, code: 200, status_code: "success", message: "User added successfully." });
+    const token = generateToken(newAdminUser._id, newAdminUser.mobileNo, userType, orgCode);
+    return res.status(200).json(
+    { data: 
+      { token, mobileNo: newAdminUser.mobileNo,
+        isVerified: newAdminUser.isVerified,
+        isNew: true,
+        userType: userType,
+        orgCode: orgCode,
+        organisationId: orgId
+      },
+      code: 200, 
+      status_code: "success", 
+      message: "User added successfully."
+    });
 
   } catch (error) {
     console.log('Error:', error);
@@ -239,11 +249,10 @@ const updateOrgAdminDetails = async (req, res) => {
     console.log(req.user)
     const { mobileNo } = req.user;
     
-    const { name, designation, orgCode } = req.body;
+    const { name, designation } = req.body;
     console.log('Mobile Number:', mobileNo);
     console.log('Name:', name);
     console.log('Designation:', designation);
-    console.log('Org Code:', orgCode);
 
     if (!name) {
       return res.status(400).json({ code: 400, status_code: "error", error: "Name is required" })
@@ -251,7 +260,7 @@ const updateOrgAdminDetails = async (req, res) => {
 
     const adminUser = await User.findOneAndUpdate(
       { mobileNo: mobileNo },
-      { name, designation, orgCode }
+      { name, designation }
     );
 
     console.log('Admin User:', adminUser); // Log the adminUser
@@ -259,7 +268,7 @@ const updateOrgAdminDetails = async (req, res) => {
     if (!adminUser) {
       return res.status(404).json({ code: 404, status_code: "error", error: 'User not found' });
     }
-    return res.status(200).json({ data: adminUser, code: 200, status_code: "success", message: "admin details updated successfully" })
+    return res.status(200).json({ data: adminUser, code: 200, status_code: "success", message: "Details updated successfully" })
   } catch (error) {
     res.status(500).json({ code: 500, status_code: "error", error: "An error occurred while updating the details" })
   }
@@ -296,5 +305,4 @@ exports.updateName = updateName;
 exports.addScore = addScore;
 exports.getAllUsers = getAllUsers;
 exports.addOrgAdminUser = addOrgAdminUser;
-exports.addOrgNewAdminUser = addOrgNewAdminUser;
 exports.updateOrgAdminDetails = updateOrgAdminDetails;
