@@ -117,7 +117,7 @@ const generateRank = async (req, res) => {
       const rankMultiplier = 2.47;
       std.rank = std.score === 0 ? 0 : Math.ceil(rank * rankMultiplier);
       //  const points = ((1-((std.rank+1)/sortedScores.length))*100).toFixed(2); // old formulae
-      const points = (((Math.ceil(sortedScores.length * 11/4.2)- std.rank + 1) / Math.ceil(sortedScores.length * 11/4)) * 100).toFixed(2); // new formulae
+      const points = (((Math.ceil(sortedScores.length * 11 / 4.2) - std.rank + 1) / Math.ceil(sortedScores.length * 11 / 4)) * 100).toFixed(2); // new formulae
       std.points = std.score === 0 ? 0 : points;
       // Save the updated rank to the database
       await std.save();
@@ -223,12 +223,20 @@ const sendWpMessage = async (req, res) => {
 
 const getResultByTest = async (req, res) => {
   const { testId } = req.params;
+  const { orgCode, type } = req.user;
   try {
-    // Get the score of last test given
-    const result = await Result.find({ testId: testId })
-      .sort({ rank: 1 })
-      .populate('userId')
-
+    // If org-admin, show all results based on orgCode
+    if (type === 'org-admin') {
+      result = await Result.find({ testId: testId })
+        .populate({
+          path: 'userId',
+          match: { orgCode: orgCode }
+        })
+        .sort({ rank: 1 });
+    } else if (type === 'admin') {
+      // If admin, show all results without filtering
+      result = await Result.find({ testId: testId }).populate('userId').sort({ rank: 1 });
+    }
     res.status(200).json({
       data: result,
       code: 200,

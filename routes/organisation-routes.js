@@ -1,12 +1,12 @@
 const express = require("express");
-const { verifyToken, verifyAdminToken, } = require("../middleware/jwt-token");
+const { verifyToken, verifyAdminToken, verifySuperAdminToken, } = require("../middleware/jwt-token");
 const router = express.Router();
 const { addOrganisation, getOrganisations, updateOrganisation, getOrganisationById } = require("../controller.js/organisation-controller")
 
 // protected routes
-router.post("/addOrganisation", verifyAdminToken, addOrganisation);
-router.get("/", verifyAdminToken, getOrganisations);
-router.put("/updateOrganisation/:orgId", verifyAdminToken, updateOrganisation)
-router.get("/getOrganisation/:orgId", verifyAdminToken, getOrganisationById)
+router.post("/addOrganisation", verifySuperAdminToken, addOrganisation);
+router.get("/", verifySuperAdminToken, getOrganisations);
+router.put("/updateOrganisation/:orgId", verifySuperAdminToken, updateOrganisation)
+router.get("/getOrganisation/:orgId", verifySuperAdminToken, getOrganisationById)
 
 module.exports = router;

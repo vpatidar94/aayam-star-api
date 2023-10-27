@@ -1,5 +1,6 @@
 const User = require("../model/User")
 const { generateToken, verifyToken } = require('../middleware/jwt-token');
+const Organisation = require("../model/Organisation");
 // const fetchIdByToken = require('../services/token');
 
 const getAllUsers = async (req, res, next) => {
@@ -113,15 +114,20 @@ const updateName = async (req, res) => {
   try {
     console.log(req.user);
     const { mobileNo } = req.user;
-    const { name, stream } = req.body;
+    const { name, stream, orgCode} = req.body;
 
     if (!name) {
-      return res.status(400).json({ code: 400, status_code: "error", error: 'Name number is required' });
+      return res.status(400).json({ code: 400, status_code: "error", error: 'Name is required' });
+    }
+    
+    const org = await Organisation.findOne({orgCode: orgCode})
+    if(!org && orgCode!==null){
+      return res.status(404).json({code:404, status_code: "error", error: "Organisation not found"})
     }
 
     const user = await User.findOneAndUpdate(
       { mobileNo: mobileNo },
-      { name, stream },
+      { name, stream, orgCode },
     );
     if (!user) {
       return res.status(404).json({ code: 404, status_code: "error", error: 'User not found' });
