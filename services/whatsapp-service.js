@@ -53,6 +53,49 @@ const sendRank = async (user, std, outOf, title, totalPoints) => {
     }
 };
 
+const sendloginlink = async (number, orgCode, link) => {
+    try {
+        const payload ={
+            "to": '91' + number,
+            "recipient_type": "individual",
+            "type": "template",
+            "template": {
+                "language": {
+                    "policy": "deterministic",
+                    "code": "en"
+                },
+                "name": "subadmin",
+                "components": [
+                    {
+                        "type": "body",
+                        "parameters": [
+                            {
+                                "type": "text",
+                                "text": orgCode
+                            }
+                        ]
+                    },
+                    {
+                        "type": "button",
+                        "sub_type": "url",
+                        "index": 0,
+                        "parameters": [
+                            {
+                                "type": "text",
+                                "text": link
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+        
+        return await WPMessageTemplate(payload);
+    } catch (error) {
+        throw new Error('Error sending WhatsApp message: ' + error.message);
+    }
+}
+
 const WPMessageTemplate = async (payload) => {
     const url = process.env.WHATSAPP_API_URL; // Replace with your WhatsApp API URL
     const apiKey = process.env.WHATSAPP_API_KEY; // Replace with your API key
@@ -102,5 +145,5 @@ const WPMessageTemplate = async (payload) => {
 };
 
 module.exports = {
-    sendRank,
+    sendRank, sendloginlink
 };

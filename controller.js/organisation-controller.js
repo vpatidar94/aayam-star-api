@@ -1,4 +1,5 @@
 const Organisation = require("../model/Organisation");
+const { sendloginlink } = require("../services/whatsapp-service");
 
 // add organisation
 const addOrganisation = async (req, res) => {
@@ -90,7 +91,32 @@ const getOrganisationById = async (req, res, next) => {
     }
 }
 
+// send verify whatsapp message
+const sendLoginMessage = async (req, res) => {
+    const data = req.body;
+    const { mobileNo, orgCode, loginLink } = data;
+
+    try {
+        await sendloginlink(mobileNo, orgCode, loginLink);
+        res.status(200).json({
+            code: 200,
+            status_code: 'success',
+            message: 'WhatsApp message sent successfully.',
+        });
+    } catch (error) {
+        console.log(data)
+        console.error("Error sending WhatsApp message:", error);
+        res.status(500).json({
+            code: 500,
+            status_code: "error",
+            error: 'Failed to send WhatsApp message.',
+        });
+    }
+};
+
+
 exports.addOrganisation = addOrganisation;
 exports.getOrganisations = getOrganisations;
 exports.updateOrganisation = updateOrganisation;
 exports.getOrganisationById = getOrganisationById;
+exports.sendLoginMessage = sendLoginMessage;
