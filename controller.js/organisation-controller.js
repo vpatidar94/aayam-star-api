@@ -84,7 +84,6 @@ const getOrganisationById = async (req, res, next) => {
             return res.status(400).json({ code: 404, status_code: "error", error: 'organisation id required' });
         }
         const org = await Organisation.findById(orgId)
-        console.log("======", org)
         return res.status(200).json({ data: org, code: 200, status_code: "success", message: " data fetched successfully" })
     } catch (error) {
         res.status(500).json({ code: 500, status_code: "error", error: "An error occured while fetching organisation" })
@@ -104,7 +103,6 @@ const sendLoginMessage = async (req, res) => {
             message: 'WhatsApp message sent successfully.',
         });
     } catch (error) {
-        console.log(data)
         console.error("Error sending WhatsApp message:", error);
         res.status(500).json({
             code: 500,

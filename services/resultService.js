@@ -40,7 +40,6 @@ async function calculateTotalPoints(userId) {
             }
         ]);
 
-        console.log('Total Points:', result.length > 0 ? result[0].totalPoints : 0);
         return result.length > 0 ? result[0].totalPoints : 0;
     } catch (error) {
         console.error('Error during aggregation:', error);

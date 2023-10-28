@@ -124,9 +124,7 @@ const generateRank = async (req, res) => {
 
       const testTable = await Test.findOne({ _id: testId });
       if (testTable) {
-        console.log('tt', testTable.isRankGenerated);
         testTable.isRankGenerated = true;
-        console.log('newtt', testTable.isRankGenerated);
         await testTable.save();
       }
     }
@@ -142,52 +140,6 @@ const generateRank = async (req, res) => {
     res.status(500).json({ code: 500, status_code: "error", error: 'Wrong test id.' });
   }
 }
-
-// const generateRank = async (req, res) => {
-//   const { testId } = req.params;
-//   try {
-//     // Get the score of last test given
-//     const sortedScores = await Result.find({ testId: testId })
-//       .sort({ score: -1, duration: 1 })
-//       .exec();
-
-//     // Update the rank field based on the sorted order
-//     let rank = 1;
-//     let lastStuRes = null;
-//     for (const std of sortedScores) {
-//       if (lastStuRes != null) {
-//         if (!(lastStuRes?.score === std.score && lastStuRes?.duration === std.duration)) {
-//           rank++;
-//         }
-//       }
-//       lastStuRes = std;
-//       std.rank = std.score === 0 ? 0 : rank;
-//       //  const points = ((1-((std.rank+1)/sortedScores.length))*100).toFixed(2); // old formulae
-//       const points = (((sortedScores.length - rank + 1) / sortedScores.length) * 100).toFixed(2); // new formulae
-//       std.points = std.score === 0 ? 0 : points;
-//       // Save the updated rank to the database
-//       await std.save();
-
-//       const testTable = await Test.findOne({ _id: testId });
-//       if (testTable) {
-//         console.log('tt', testTable.isRankGenerated);
-//         testTable.isRankGenerated = true;
-//         console.log('newtt', testTable.isRankGenerated);
-//         await testTable.save();
-//       }
-//     }
-
-//     res.status(200).json({
-//       data: sortedScores,
-//       code: 200,
-//       status_code: 'success',
-//       message: 'Rank generated successfully.',
-//     });
-
-//   } catch (error) {
-//     res.status(500).json({ code: 500, status_code: "error", error: 'Wrong test id.' });
-//   }
-// }
 
 const sendWpMessage = async (req, res) => {
   const data = req.body;
@@ -331,7 +283,6 @@ const getTestResultByUser = async (req, res) => {
 const getAllResultsDetails = async (req, res, next) => {
   try {
     const orgCode = req.user.orgCode; // Assuming the orgCode is available in the token
-    console.log(req.user)
     const pipeline = [
       {
         $lookup: {

@@ -50,21 +50,14 @@ const addNewUser = async (req, res) => {
   }
 
   try {
-    console.log('referring user', referredBy);
     const referringUser = null;
     if (referredBy) {
       const referringUser = await User.findById(referredBy);
-      console.log('referring user 1', referringUser);
       if (!referringUser) {
-        console.log('Referring user not found');
         return;
       }
-
       // Update the user's referredBy field with the referring user's ID
-      // referringUser = referringUser._id; 
       referringUser.referralPoints = (referringUser?.referralPoints ?? 0) + 20;
-      console.log('referring user 2 > referral points', referringUser.referralPoints);
-
       await referringUser.save();
     }
 
@@ -77,7 +70,6 @@ const addNewUser = async (req, res) => {
     await newUser.save();
     const userType = newUser.type ?? 'user';
     const token = generateToken(newUser._id, newUser.mobileNo, userType);
-    console.log('referring user 3 > new user points', newUser);
 
     return res.status(201).json({ data: { token, user: newUser, isNew: true, userType: userType }, code: 200, status_code: "success", message: "User added successfully." })
   } catch (error) {
@@ -112,7 +104,6 @@ const addUser = async (req, res) => {
 
 const updateName = async (req, res) => {
   try {
-    console.log(req.user);
     const { mobileNo } = req.user;
     const { name, stream, orgCode} = req.body;
 
@@ -140,50 +131,6 @@ const updateName = async (req, res) => {
   }
 }
 
-
-// const addOrgAdminUser = async (req, res) => {
-//   try {
-//     const mobileNo = req.body.mobileNo;
-//     if (!mobileNo) {
-//       return res.status(400).json({ error: 'Mobile number is required' });
-//     }
-//     const adminUser = await User.findOne({ mobileNo: mobileNo });
-//     if (!adminUser) {
-//       return addNewAdminUser(req, res)
-//     }
-//     const adminUserType = adminUser.type ?? 'subAdmin'
-//     const token = generateToken(adminUser._id, adminUser.mobileNo, adminUserType);
-//     return res.status(200).json({ data: { token, adminUser, isNew: false, adminUserType: adminUserType }, code: 200, status_code: "success", message: "User updated successfully." })
-//   } catch (error) {
-//     console.log('e2', error);
-//     res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while updating the mobile number' });
-//   }
-// }
-
-// const addOrgNewAdminUser = async (req, res) => {
-//   const { mobileNo, orgId } = req.body
-
-//   if ((!mobileNo)) {
-//     return res.status(400).json({ code: 400, status_code: "error", message: "Mobile number is required." })
-//   }
-
-//   try {
-//     const newAdminUser = new User({
-//       mobileNo,
-//       isVerified: true,
-//     });
-//     await newAdminUser.save();
-//     const adminUserType = newAdminUser.type ?? 'sub-admin';
-//     const token = generateToken(newAdminUser._id, newAdminUser.mobileNo, adminUserType);
-
-//     return res.status(201).json({ data: { token, user: newAdminUser, isNew: true, userType: adminUserType }, code: 200, status_code: "success", message: "User added successfully." })
-//   } catch (error) {
-//     console.log('e', error);
-//     res.status(500).json({ code: 500, status_code: "error", error: 'Enter correct mobile number' });
-//   }
-// }
-
-
 const addOrgAdminUser = async (req, res) => {
   try {
     const mobileNo = req.body.mobileNo;
@@ -203,7 +150,7 @@ const addOrgAdminUser = async (req, res) => {
       return addOrgNewAdminUser(req, res, orgExist?._id);
     }
     
-    return res.status(502).json({ code: 502, status_code: "error", error: 'User already exist. Login directly.' });
+    return res.status(403).json({ code: 403, status_code: "error", error: 'You already registered to application. Please login.' });
   } catch (error) {
     console.log('Error:', error);
     res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while updating the mobile number' });
@@ -245,15 +192,9 @@ const addOrgNewAdminUser = async (req, res, orgId) => {
 
 const updateOrgAdminDetails = async (req, res) => {
   try {
-    // console.log(req)
-    console.log(req.user)
     const { mobileNo } = req.user;
     
     const { name, designation } = req.body;
-    console.log('Mobile Number:', mobileNo);
-    console.log('Name:', name);
-    console.log('Designation:', designation);
-
     if (!name) {
       return res.status(400).json({ code: 400, status_code: "error", error: "Name is required" })
     }
@@ -262,8 +203,6 @@ const updateOrgAdminDetails = async (req, res) => {
       { mobileNo: mobileNo },
       { name, designation }
     );
-
-    console.log('Admin User:', adminUser); // Log the adminUser
 
     if (!adminUser) {
       return res.status(404).json({ code: 404, status_code: "error", error: 'User not found' });
