@@ -38,7 +38,18 @@ const userSchema = new Schema({
     referralPoints: {
         type: Number,
         default: 0
+    },
+    orgCode: {
+        type: String,
+    },
+    organisationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Organisation',
+    },
+    designation: {
+        type: String,
     }
+
 })
 
 module.exports = mongoose.model("User", userSchema);

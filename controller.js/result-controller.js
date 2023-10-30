@@ -51,7 +51,7 @@ const getResultDashboard = async (req, res) => {
 
         try {
           let isAvailable = null;
-          if(currentTest)
+          if (currentTest)
             isAvailable = await Result.find({ testId: currentTest._id, userId: req.user.userId });
           return res.status(200).json(
             {
@@ -112,18 +112,19 @@ const generateRank = async (req, res) => {
         }
       }
       lastStuRes = std;
-      std.rank = std.score === 0 ? 0 : rank;
+      // std.rank = std.score === 0 ? 0 : rank;
+      // Adjust the rank calculation with the multiplier of 11/4
+      const rankMultiplier = 2.47;
+      std.rank = std.score === 0 ? 0 : Math.ceil(rank * rankMultiplier);
       //  const points = ((1-((std.rank+1)/sortedScores.length))*100).toFixed(2); // old formulae
-      const points = (((sortedScores.length - rank + 1) / sortedScores.length) * 100).toFixed(2); // new formulae
+      const points = (((Math.ceil(sortedScores.length * 11 / 4.2) - std.rank + 1) / Math.ceil(sortedScores.length * 11 / 4)) * 100).toFixed(2); // new formulae
       std.points = std.score === 0 ? 0 : points;
       // Save the updated rank to the database
       await std.save();
 
       const testTable = await Test.findOne({ _id: testId });
       if (testTable) {
-        console.log('tt', testTable.isRankGenerated);
         testTable.isRankGenerated = true;
-        console.log('newtt', testTable.isRankGenerated);
         await testTable.save();
       }
     }
@@ -174,12 +175,20 @@ const sendWpMessage = async (req, res) => {
 
 const getResultByTest = async (req, res) => {
   const { testId } = req.params;
+  const { orgCode, type } = req.user;
   try {
-    // Get the score of last test given
-    const result = await Result.find({ testId: testId })
-      .sort({ rank: 1 })
-      .populate('userId')
-
+    // If org-admin, show all results based on orgCode
+    if (type === 'org-admin') {
+      result = await Result.find({ testId: testId })
+        .populate({
+          path: 'userId',
+          match: { orgCode: orgCode }
+        })
+        .sort({ rank: 1 });
+    } else if (type === 'admin') {
+      // If admin, show all results without filtering
+      result = await Result.find({ testId: testId }).populate('userId').sort({ rank: 1 });
+    }
     res.status(200).json({
       data: result,
       code: 200,
@@ -194,11 +203,11 @@ const getResultByTest = async (req, res) => {
 
 const getTestResultByUser = async (req, res) => {
   const userId = req.user.userId;
-  const { testId} = req.params;
+  const { testId } = req.params;
   // const {userId} = req.user.userId
   try {
     // Get the score of last test given
-    const result = await Result.find({ testId: testId , userId: userId})
+    const result = await Result.find({ testId: testId, userId: userId })
 
     res.status(200).json({
       data: result,
@@ -211,43 +220,55 @@ const getTestResultByUser = async (req, res) => {
     res.status(500).json({ code: 500, status_code: "error", error: 'Wrong test id.' });
   }
 }
-
+//  <!----new api-------------------->
 // const getAllResultsDetails = async (req, res, next) => {
 //   try {
-//     const results = await Result.aggregate([
-//       {
-//         $group: {
-//           _id: "$userId",
-//           totalTestPoints: { $sum: "$points" },
-//           totalTests: { $sum: 1 } // Count the number of tests per user
-//         }
-//       },
+//     const results = await User.aggregate([
 //       {
 //         $lookup: {
-//           from: "users",
+//           from: "results",
 //           localField: "_id",
-//           foreignField: "_id",
-//           as: "userDetails"
+//           foreignField: "userId",
+//           as: "userResults"
 //         }
-//       },
-//       {
-//         $unwind: "$userDetails"
 //       },
 //       {
 //         $project: {
 //           userId: "$_id",
-//           totalTestPoints: 1,
-//           totalTests: 1,
-//           userDetails: {
-//             name: 1,
-//             mobileNo: 1,
-//             stream: 1,
-//             referralPoints: 1
-//             // Add more fields as needed
+//           name: 1,
+//           mobileNo: 1,
+//           stream: 1,
+//           referralPoints: 1,
+//           totalTestPoints: { $sum: "$userResults.points" },
+//           totalTests: {
+//             $sum: {
+//               $cond: [
+//                 { $isArray: "$userResults" },
+//                 { $size: "$userResults" },
+//                 0
+//               ]
+//             }
 //           }
 //         }
+//       },
+//       {
+//         $project: {
+//           _id: 0,
+//           userId: 1,
+//           name: 1,
+//           mobileNo: 1,
+//           stream: 1,
+//           referralPoints: 1,
+//           totalTestPoints: 1,
+//           totalTests: 1,
+//           totalPoints: { $sum: ["$totalTestPoints", "$referralPoints"] }
+//         }
+//       },
+//       {
+//         $sort: { totalPoints: -1, totalTests: -1 }
 //       }
 //     ]);
+
 
 //     if (!results) {
 //       return res.status(500).json({ code: "error", message: "Internal Server Error" });
@@ -259,11 +280,10 @@ const getTestResultByUser = async (req, res) => {
 //   }
 // }
 
-
-    //  <!----new api-------------------->
 const getAllResultsDetails = async (req, res, next) => {
   try {
-    const results = await User.aggregate([
+    const orgCode = req.user.orgCode; // Assuming the orgCode is available in the token
+    const pipeline = [
       {
         $lookup: {
           from: "results",
@@ -307,8 +327,18 @@ const getAllResultsDetails = async (req, res, next) => {
       {
         $sort: { totalPoints: -1, totalTests: -1 }
       }
-    ]);
-    
+    ];
+
+    // Conditionally add $match stage if orgCode is present in the token
+    if (orgCode) {
+      pipeline.unshift({
+        $match: {
+          orgCode: orgCode
+        }
+      });
+    }
+
+    const results = await User.aggregate(pipeline);
 
     if (!results) {
       return res.status(500).json({ code: "error", message: "Internal Server Error" });
@@ -318,8 +348,7 @@ const getAllResultsDetails = async (req, res, next) => {
   } catch (err) {
     return next(err);
   }
-}
-
+};
 
 
 const getAllScorePoints = async (req, res) => {

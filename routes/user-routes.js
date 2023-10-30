@@ -1,5 +1,5 @@
 const express = require("express");
-const { addUser, addUpdateUser, updateName, addScore, getAllUsers } = require("../controller.js/user-controller");
+const { addUser, addUpdateUser, updateName, addScore, getAllUsers, addOrgAdminUser, updateOrgAdminDetails } = require("../controller.js/user-controller");
 const { verifyToken, verifyAdminToken, } = require("../middleware/jwt-token");
 const router = express.Router();
 
@@ -7,9 +7,12 @@ const router = express.Router();
 router.post("/add", addUser);
 router.put("/addUpdateUser", addUpdateUser);
 
+router.put("/addOrgAdminUser", addOrgAdminUser);
+
 // protected routes
 router.post("/updateName", verifyToken, updateName);
 router.post("/addScore", verifyToken, addScore);
-router.get("/",verifyAdminToken, getAllUsers);
+router.get("/", verifyAdminToken, getAllUsers);
+router.post("/updateOrgAdminDetails",verifyToken, updateOrgAdminDetails);
 
 module.exports = router;
