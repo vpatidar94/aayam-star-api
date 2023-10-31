@@ -65,13 +65,20 @@ const deleteTest = async(req,res) => {
   }
 }
 const getAllTest = async (req, res) => {
+  const userType = req.user.type;
   try {
-    // const { testId } =  req.params;
-    // if (!testId) {
-    //   return res.status(400).json({ code: 400,  status_code: "error", error: 'Test id required' });
-    // }
+    const { stream } = req.query;
+    let query = {};
 
-    const tests = await Test.find().sort({ testDate: -1 });
+    // Add stream filter to the query if provided
+    if (stream) {
+      query = { stream: stream };
+    }
+    // For org-admin, filter tests up to the current date
+    if (userType === 'org-admin') {
+      query.testDate = { $lte: new Date() };
+    }
+    const tests = await Test.find(query).sort({ testDate: -1 });
 
     if (!tests || tests.length <= 0) {
       return res.status(200).json({ code: 201, data: [], status_code: "success", message: 'No test found.' });
