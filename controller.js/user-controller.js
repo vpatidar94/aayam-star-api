@@ -18,6 +18,22 @@ const getAllUsers = async (req, res, next) => {
   return res.status(200).json({ data: users, code: "success", message: "Data fetched successfully." })
 }
 
+const getUserById = async (req, res, next) => {
+  const { userId } = req.params;
+  console.log(req.params)
+  console.log(req.user)
+  try {
+    if (!userId) {
+      return res.status(400).json({ code: 404, status_code: "error", message: "userId required" })
+    }
+    const user = await User.findById(userId);
+    return res.status(200).json({ data: user, code: 200, status_code: "success", message: "User Fetched Successfully", })
+
+  } catch {
+    return res.status(500).json({ code: 500, status_code: "error", message: "an error occured while fetching user" })
+  }
+}
+
 const addUpdateUser = async (req, res) => {
   try {
     const mobileNo = req.body.mobileNo;
@@ -105,15 +121,15 @@ const addUser = async (req, res) => {
 const updateName = async (req, res) => {
   try {
     const { mobileNo } = req.user;
-    const { name, stream, orgCode} = req.body;
+    const { name, stream, orgCode } = req.body;
 
     if (!name) {
       return res.status(400).json({ code: 400, status_code: "error", error: 'Name is required' });
     }
-    
-    const org = await Organisation.findOne({orgCode: orgCode})
-    if(!org && orgCode!==null){
-      return res.status(404).json({code:404, status_code: "error", error: "Organisation not found"})
+
+    const org = await Organisation.findOne({ orgCode: orgCode })
+    if (!org && orgCode !== null && orgCode !== undefined) {
+      return res.status(404).json({ code: 404, status_code: "error", error: "Organisation not found" })
     }
 
     const user = await User.findOneAndUpdate(
@@ -143,13 +159,13 @@ const addOrgAdminUser = async (req, res) => {
 
     if (!adminUser) {
       const orgExist = await Organisation.findOne({ orgCode: orgCode });
-      if(!orgExist){
+      if (!orgExist) {
         return res.status(400).json({ error: 'Organisation does not exist. Contact admin.' });
       }
       // If admin user doesn't exist, add a new admin user
       return addOrgNewAdminUser(req, res, orgExist?._id);
     }
-    
+
     return res.status(403).json({ code: 403, status_code: "error", error: 'You already registered to application. Please login.' });
   } catch (error) {
     console.log('Error:', error);
@@ -171,18 +187,20 @@ const addOrgNewAdminUser = async (req, res, orgId) => {
     await newAdminUser.save();
     const token = generateToken(newAdminUser._id, newAdminUser.mobileNo, userType, orgCode);
     return res.status(200).json(
-    { data: 
-      { token, mobileNo: newAdminUser.mobileNo,
-        isVerified: newAdminUser.isVerified,
-        isNew: true,
-        userType: userType,
-        orgCode: orgCode,
-        organisationId: orgId
-      },
-      code: 200, 
-      status_code: "success", 
-      message: "User added successfully."
-    });
+      {
+        data:
+        {
+          token, mobileNo: newAdminUser.mobileNo,
+          isVerified: newAdminUser.isVerified,
+          isNew: true,
+          userType: userType,
+          orgCode: orgCode,
+          organisationId: orgId
+        },
+        code: 200,
+        status_code: "success",
+        message: "User added successfully."
+      });
 
   } catch (error) {
     console.log('Error:', error);
@@ -193,7 +211,7 @@ const addOrgNewAdminUser = async (req, res, orgId) => {
 const updateOrgAdminDetails = async (req, res) => {
   try {
     const { mobileNo } = req.user;
-    
+
     const { name, designation } = req.body;
     if (!name) {
       return res.status(400).json({ code: 400, status_code: "error", error: "Name is required" })
@@ -245,3 +263,4 @@ exports.addScore = addScore;
 exports.getAllUsers = getAllUsers;
 exports.addOrgAdminUser = addOrgAdminUser;
 exports.updateOrgAdminDetails = updateOrgAdminDetails;
+exports.getUserById = getUserById;

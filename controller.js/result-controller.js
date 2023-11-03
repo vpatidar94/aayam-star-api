@@ -60,6 +60,7 @@ const getResultDashboard = async (req, res) => {
                 lastTestResult: lastTest.length > 0 ? lastTest[0] : null,
                 todaysTest: currentTest,
                 todaysTestIsAttempted: isAvailable?.length > 0 ? true : false,
+                userId:req.user.userId
               },
               code: 200,
               status_code: "success",
@@ -78,6 +79,7 @@ const getResultDashboard = async (req, res) => {
               lastTestResult: lastTest.length > 0 ? lastTest[0] : null,
               todaysTest: null,
               todaysTestIsAttempted: null,
+              userId:req.user.userId
             },
             code: 201,
             status_code: "success",
