@@ -20,8 +20,6 @@ const getAllUsers = async (req, res, next) => {
 
 const getUserById = async (req, res, next) => {
   const { userId } = req.params;
-  console.log(req.params)
-  console.log(req.user)
   try {
     if (!userId) {
       return res.status(400).json({ code: 404, status_code: "error", message: "userId required" })

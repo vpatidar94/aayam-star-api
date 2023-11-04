@@ -49,14 +49,21 @@ const sendRank = async (user, std, outOf, title, totalPoints) => {
         // Assuming WPMessageTemplate is a function that sends the WhatsApp message
         return await WPMessageTemplate(payload);
     } catch (error) {
-        throw new Error('Error sending WhatsApp message: ' + error.message);
+        console.log('Error sending WhatsApp message: ' + error);
+        throw error;
     }
 };
 
-const sendloginlink = async (number, orgCode, link) => {
+const sendWpAdminLoginLink = async (number, orgCode, otp) => {
+    const decryptOtp = btoa(otp);
+    const loginLink = `${number}/${orgCode}?validate=${decryptOtp}`;
+    console.log('----------------------------');
+    console.log('link', loginLink);
+    console.log('otp', decryptOtp, decryptOtp);
+    console.log('orgCode', orgCode);
     try {
         const payload ={
-            "to": '91' + number,
+            "to": '91'+number,
             "recipient_type": "individual",
             "type": "template",
             "template": {
@@ -71,7 +78,11 @@ const sendloginlink = async (number, orgCode, link) => {
                         "parameters": [
                             {
                                 "type": "text",
-                                "text": orgCode
+                                "text": "VARIABLE_TEXT"
+                            },
+                            {
+                                "type": "text",
+                                "text": "VARIABLE_TEXT"
                             }
                         ]
                     },
@@ -82,7 +93,7 @@ const sendloginlink = async (number, orgCode, link) => {
                         "parameters": [
                             {
                                 "type": "text",
-                                "text": link
+                                "text": "VARIABLE_TEXT"
                             }
                         ]
                     }
@@ -92,7 +103,8 @@ const sendloginlink = async (number, orgCode, link) => {
         
         return await WPMessageTemplate(payload);
     } catch (error) {
-        throw new Error('Error sending WhatsApp message: ' + error.message);
+        console.log('err ------------', error);
+        throw error;
     }
 }
 
@@ -116,6 +128,7 @@ const WPMessageTemplate = async (payload) => {
         // A chunk of data has been received.
         res.on('data', (chunk) => {
             data += chunk;
+            console.log('d', data);
         });
 
         // The whole response has been received.
@@ -126,17 +139,19 @@ const WPMessageTemplate = async (payload) => {
                 // Handle the response as needed
             } catch (error) {
                 console.error('Error parsing response:', error);
-                throw new Error('Error parsing response:', error);
+                return error;
+                // throw new Error('Error parsing response:', error);
             }
         });
     });
 
     // Handle request errors
     req.on('error', (error) => {
-        console.log('Error sending WhatsApp message: ' + error.message);
-        throw new Error('Error sending WhatsApp message: ' + error.message);
+        console.log('Error sending WhatsApp message: ' + error);
+        return error;
+        // throw error;
     });
-
+    console.log('send messages', JSON.stringify(payload));
     // Send the payload
     req.write(JSON.stringify(payload));
 
@@ -145,5 +160,5 @@ const WPMessageTemplate = async (payload) => {
 };
 
 module.exports = {
-    sendRank, sendloginlink
+    sendRank, sendWpAdminLoginLink
 };

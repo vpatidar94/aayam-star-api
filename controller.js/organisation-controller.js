@@ -1,5 +1,5 @@
 const Organisation = require("../model/Organisation");
-const { sendloginlink } = require("../services/whatsapp-service");
+const { sendWpAdminLoginLink } = require("../services/whatsapp-service");
 
 // add organisation
 const addOrganisation = async (req, res) => {
@@ -93,10 +93,10 @@ const getOrganisationById = async (req, res, next) => {
 // send verify whatsapp message
 const sendLoginMessage = async (req, res) => {
     const data = req.body;
-    const { mobileNo, orgCode, loginLink } = data;
+    const { mobileNo, orgCode, otp } = data;
 
     try {
-        await sendloginlink(mobileNo, orgCode, loginLink);
+        await sendWpAdminLoginLink(mobileNo, orgCode, otp);
         res.status(200).json({
             code: 200,
             status_code: 'success',

@@ -52,7 +52,7 @@ function verifyAdminToken(req, res, next) {
 
 function verifySuperAdminToken(req, res, next) {
   const token = req.headers.authorization;
-
+  
   if (!token) {
     return res.status(401).json({ code: 401, status_code: "error", error: 'Token missing' });
   }
