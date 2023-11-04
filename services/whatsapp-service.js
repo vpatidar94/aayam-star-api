@@ -56,7 +56,7 @@ const sendRank = async (user, std, outOf, title, totalPoints) => {
 
 const sendWpAdminLoginLink = async (number, orgCode, otp) => {
     const decryptOtp = btoa(otp);
-    const loginLink = `${number}/${orgCode}?validate=${decryptOtp}`;
+    const loginLink = `${number}/${orgCode}?validate=${encodeURI(otp)}`;
     console.log('----------------------------');
     console.log('link', loginLink);
     console.log('otp', decryptOtp, decryptOtp);
