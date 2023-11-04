@@ -78,11 +78,11 @@ const sendWpAdminLoginLink = async (number, orgCode, otp) => {
                         "parameters": [
                             {
                                 "type": "text",
-                                "text": "VARIABLE_TEXT"
+                                "text": decryptOtp+''
                             },
                             {
                                 "type": "text",
-                                "text": "VARIABLE_TEXT"
+                                "text": orgCode+''
                             }
                         ]
                     },
@@ -93,7 +93,7 @@ const sendWpAdminLoginLink = async (number, orgCode, otp) => {
                         "parameters": [
                             {
                                 "type": "text",
-                                "text": "VARIABLE_TEXT"
+                                "text": loginLink
                             }
                         ]
                     }
@@ -128,7 +128,6 @@ const WPMessageTemplate = async (payload) => {
         // A chunk of data has been received.
         res.on('data', (chunk) => {
             data += chunk;
-            console.log('d', data);
         });
 
         // The whole response has been received.
