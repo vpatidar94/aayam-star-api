@@ -54,7 +54,7 @@ const sendRank = async (user, std, outOf, title, totalPoints) => {
     }
 };
 
-const sendWpAdminLoginLink = async (number, orgCode, otp) => {
+const sendWpAdminRegisterLink = async (number, orgCode, otp) => {
     const decryptOtp = btoa(otp);
     const loginLink = `${number}/${orgCode}?validate=${encodeURI(otp)}`;
     console.log('----------------------------');
@@ -108,6 +108,40 @@ const sendWpAdminLoginLink = async (number, orgCode, otp) => {
     }
 }
 
+const sendWpAdminLoginLink = async (number) => {
+    try {
+        const payload ={
+            "to": '91'+number,
+            "recipient_type": "individual",
+            "type": "template",
+            "template": {
+                "language": {
+                    "policy": "deterministic",
+                    "code": "en"
+                },
+                "name": "admin_login",
+                "components": [
+                    {
+                        "type": "body",
+                        "parameters": [
+                            {
+                                "type": "text",
+                                "text": ""
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+        
+        return await WPMessageTemplate(payload);
+    } catch (error) {
+        console.log('err ------------', error);
+        throw error;
+    }
+}
+
+
 const WPMessageTemplate = async (payload) => {
     const url = process.env.WHATSAPP_API_URL; // Replace with your WhatsApp API URL
     const apiKey = process.env.WHATSAPP_API_KEY; // Replace with your API key
@@ -159,5 +193,5 @@ const WPMessageTemplate = async (payload) => {
 };
 
 module.exports = {
-    sendRank, sendWpAdminLoginLink
+    sendRank, sendWpAdminRegisterLink, sendWpAdminLoginLink
 };

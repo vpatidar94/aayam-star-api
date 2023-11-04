@@ -184,6 +184,8 @@ const addOrgNewAdminUser = async (req, res, orgId) => {
     });
     await newAdminUser.save();
     const token = generateToken(newAdminUser._id, newAdminUser.mobileNo, userType, orgCode);
+
+    await sendWpAdminLoginLink(mobileNo); 
     return res.status(200).json(
       {
         data:
