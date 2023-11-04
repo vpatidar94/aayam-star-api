@@ -72,4 +72,26 @@ function verifySuperAdminToken(req, res, next) {
   });
 }
 
-module.exports = { generateToken, verifyToken, verifyAdminToken, verifySuperAdminToken }
+function verifySuperAdminAndSubAdminToken(req, res, next) {
+  const token = req.headers.authorization;
+  
+  if (!token) {
+    return res.status(401).json({ code: 401, status_code: "error", error: 'Token missing' });
+  }
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ code: 403, status_code: "error", error: 'Invalid token' });
+    }
+
+    if(!(decoded?.type === 'admin' || decoded?.type === 'sub-admin')){
+      return res.status(403).json({ code: 403, status_code: "error", error: 'Unauthorized user' });
+    }
+
+    // Token is valid, proceed to the next middleware or route
+    req.user = decoded;
+    next();
+  });
+}
+
+module.exports = { generateToken, verifyToken, verifyAdminToken, verifySuperAdminToken, verifySuperAdminAndSubAdminToken }
