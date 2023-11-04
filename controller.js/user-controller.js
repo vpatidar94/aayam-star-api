@@ -18,8 +18,8 @@ const getAllUsers = async (req, res, next) => {
   return res.status(200).json({ data: users, code: "success", message: "Data fetched successfully." })
 }
 
-const getUserById = async (req, res, next) => {
-  const { userId } = req.params;
+const getUserById = async (req, res) => {
+  const { userId } = req.user;
   try {
     if (!userId) {
       return res.status(400).json({ code: 404, status_code: "error", message: "userId required" })

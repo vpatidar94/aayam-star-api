@@ -14,6 +14,6 @@ router.post("/updateName", verifyToken, updateName);
 router.post("/addScore", verifyToken, addScore);
 router.get("/", verifyAdminToken, getAllUsers);
 router.post("/updateOrgAdminDetails",verifyToken, updateOrgAdminDetails);
-router.get("/getUserById/:userId",verifyToken, getUserById);
+router.get("/getUserById",verifyToken, getUserById);
 
 module.exports = router;
