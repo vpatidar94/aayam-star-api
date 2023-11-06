@@ -191,9 +191,8 @@ const addOrgNewAdminUser = async (req, res, orgId) => {
       organisationId: orgId
     });
     await newAdminUser.save();
-    const token = generateToken(newAdminUser._id, newAdminUser.mobileNo, userType, orgCode);
-
-    await sendWpAdminLoginLink(mobileNo); 
+    const token = generateToken(newAdminUser._id, newAdminUser.mobileNo, userType, orgCode)
+    
     return res.status(200).json(
       {
         data:
@@ -218,7 +217,7 @@ const addOrgNewAdminUser = async (req, res, orgId) => {
 
 const updateOrgAdminDetails = async (req, res) => {
   try {
-    const { mobileNo } = req.user;
+    const { mobileNo, orgCode} = req.user;
 
     const { name, designation } = req.body;
     if (!name) {
@@ -229,7 +228,7 @@ const updateOrgAdminDetails = async (req, res) => {
       { mobileNo: mobileNo },
       { name, designation }
     );
-
+    await sendWpAdminLoginLink(mobileNo, orgCode); 
     if (!adminUser) {
       return res.status(404).json({ code: 404, status_code: "error", error: 'User not found' });
     }
@@ -263,6 +262,7 @@ const addScore = async (req, res) => {
     res.status(500).json({ code: 500, status_code: "error", error: 'An error occurred while updating the name' });
   }
 }
+
 
 exports.addUser = addUser;
 exports.addUpdateUser = addUpdateUser;

@@ -108,9 +108,9 @@ const sendWpAdminRegisterLink = async (number, orgCode, otp) => {
     }
 }
 
-const sendWpAdminLoginLink = async (number) => {
+const sendWpAdminLoginLink = async (number, orgCode) => {
     try {
-        const payload = {
+         const payload = {
             "to": '91' + number,
             "recipient_type": "individual",
             "type": "template",
@@ -126,14 +126,13 @@ const sendWpAdminLoginLink = async (number) => {
                         "parameters": [
                             {
                                 "type": "text",
-                                "text": ""
+                                "text": orgCode + ''
                             }
                         ]
                     }
                 ]
             }
         }
-
         return await WPMessageTemplate(payload);
     } catch (error) {
         console.log('err ------------', error);
@@ -184,7 +183,7 @@ const WPMessageTemplate = async (payload) => {
         return error;
         // throw error;
     });
-    console.log('send messages', JSON.stringify(payload));
+    // console.log('send messages', JSON.stringify(payload));
     // Send the payload
     req.write(JSON.stringify(payload));
 
