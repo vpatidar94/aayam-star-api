@@ -1,6 +1,7 @@
 const User = require("../model/User")
 const { generateToken, verifyToken } = require('../middleware/jwt-token');
 const Organisation = require("../model/Organisation");
+const { sendWpAdminLoginLink } = require("../services/whatsapp-service");
 // const fetchIdByToken = require('../services/token');
 
 const getAllUsers = async (req, res, next) => {
@@ -175,6 +176,13 @@ const addOrgNewAdminUser = async (req, res, orgId) => {
   const { mobileNo, orgCode } = req.body;
   try {
     const userType = 'org-admin';
+    console.log('org', {
+      mobileNo,
+      isVerified: true,
+      type: userType,
+      orgCode: orgCode,
+      organisationId: orgId
+    });
     const newAdminUser = new User({
       mobileNo,
       isVerified: true,

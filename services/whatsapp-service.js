@@ -62,8 +62,8 @@ const sendWpAdminRegisterLink = async (number, orgCode, otp) => {
     console.log('otp', decryptOtp, decryptOtp);
     console.log('orgCode', orgCode);
     try {
-        const payload ={
-            "to": '91'+number,
+        const payload = {
+            "to": '91' + number,
             "recipient_type": "individual",
             "type": "template",
             "template": {
@@ -78,11 +78,11 @@ const sendWpAdminRegisterLink = async (number, orgCode, otp) => {
                         "parameters": [
                             {
                                 "type": "text",
-                                "text": decryptOtp+''
+                                "text": decryptOtp + ''
                             },
                             {
                                 "type": "text",
-                                "text": orgCode+''
+                                "text": orgCode + ''
                             }
                         ]
                     },
@@ -100,7 +100,7 @@ const sendWpAdminRegisterLink = async (number, orgCode, otp) => {
                 ]
             }
         }
-        
+
         return await WPMessageTemplate(payload);
     } catch (error) {
         console.log('err ------------', error);
@@ -110,8 +110,8 @@ const sendWpAdminRegisterLink = async (number, orgCode, otp) => {
 
 const sendWpAdminLoginLink = async (number) => {
     try {
-        const payload ={
-            "to": '91'+number,
+        const payload = {
+            "to": '91' + number,
             "recipient_type": "individual",
             "type": "template",
             "template": {
@@ -133,7 +133,7 @@ const sendWpAdminLoginLink = async (number) => {
                 ]
             }
         }
-        
+
         return await WPMessageTemplate(payload);
     } catch (error) {
         console.log('err ------------', error);

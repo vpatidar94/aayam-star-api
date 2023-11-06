@@ -4,7 +4,7 @@ const router = express.Router();
 const { addOrganisation, getOrganisations, updateOrganisation, getOrganisationById, sendLoginMessage } = require("../controller.js/organisation-controller")
 
 // protected routes
-router.post("/addOrganisation", verifySuperAdminToken, addOrganisation);
+router.post("/addOrganisation", verifySuperAdminAndSubAdminToken, addOrganisation);
 router.get("/", verifySuperAdminAndSubAdminToken, getOrganisations);
 router.put("/updateOrganisation/:orgId", verifySuperAdminAndSubAdminToken, updateOrganisation)
 router.get("/getOrganisation/:orgId", verifySuperAdminAndSubAdminToken, getOrganisationById)
