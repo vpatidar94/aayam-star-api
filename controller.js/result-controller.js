@@ -119,7 +119,7 @@ const generateRank = async (req, res) => {
       const rankMultiplier = 2.47;
       std.rank = std.score === 0 ? 0 : Math.ceil(rank * rankMultiplier);
       //  const points = ((1-((std.rank+1)/sortedScores.length))*100).toFixed(2); // old formulae
-      const points = (((Math.ceil(sortedScores.length * 11 / 4.2) - std.rank + 1) / Math.ceil(sortedScores.length * 11 / 4)) * 100).toFixed(2); // new formulae
+      const points = (((Math.ceil(sortedScores.length * 11 / 4.2) - std.rank + 1) / Math.ceil(sortedScores.length * 11 / 4)) * 90).toFixed(2); // new formulae
       std.points = std.score === 0 ? 0 : points;
       // Save the updated rank to the database
       await std.save();
@@ -150,7 +150,7 @@ const sendWpMessage = async (req, res) => {
   try {
     // Get the score of last test given
     const results = await Result.find({ testId: testId });
-    const totalStudents = results.length * 10;
+    const totalStudents = math.ceil(results.length * 9.5);
     for (const std of results) {
       try {
         const user = await User.find({ _id: std.userId });
