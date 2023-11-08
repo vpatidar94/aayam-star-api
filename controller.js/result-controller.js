@@ -150,7 +150,7 @@ const sendWpMessage = async (req, res) => {
   try {
     // Get the score of last test given
     const results = await Result.find({ testId: testId });
-    const totalStudents = math.ceil(results.length * 9.5);
+    const totalStudents = Math.ceil(results.length * 9.5);
     for (const std of results) {
       try {
         const user = await User.find({ _id: std.userId });
