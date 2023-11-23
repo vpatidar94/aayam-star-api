@@ -60,7 +60,7 @@ const getResultDashboard = async (req, res) => {
                 lastTestResult: lastTest.length > 0 ? lastTest[0] : null,
                 todaysTest: currentTest,
                 todaysTestIsAttempted: isAvailable?.length > 0 ? true : false,
-                userId:req.user.userId
+                userId: req.user.userId
               },
               code: 200,
               status_code: "success",
@@ -79,7 +79,7 @@ const getResultDashboard = async (req, res) => {
               lastTestResult: lastTest.length > 0 ? lastTest[0] : null,
               todaysTest: null,
               todaysTestIsAttempted: null,
-              userId:req.user.userId
+              userId: req.user.userId
             },
             code: 201,
             status_code: "success",
@@ -108,19 +108,33 @@ const generateRank = async (req, res) => {
     let rank = 1;
     let lastStuRes = null;
     for (const std of sortedScores) {
-      if (lastStuRes != null) {
-        if (!(lastStuRes?.score === std.score && lastStuRes?.duration === std.duration)) {
-          rank++;
+      // Find the user information based on userId
+      const user = await User.findOne({ _id: std.userId });
+
+      if (user) {
+        const userStream = user.stream;
+        if (lastStuRes != null) {
+          if (!(lastStuRes?.score === std.score && lastStuRes?.duration === std.duration)) {
+            rank++;
+          }
+        }
+        lastStuRes = std;
+        // std.rank = std.score === 0 ? 0 : rank;
+        //  const points = ((1-((std.rank+1)/sortedScores.length))*100).toFixed(2); // old formulae
+        if (userStream === 'DROPPER-PCB' || userStream === 'DROPPER-PCM') {
+          // Formula for "DROPPER"
+          const rankMultiplier = 2.47;
+          std.rank = std.score === 0 ? 0 : Math.ceil(rank * rankMultiplier);
+          const points = (((Math.ceil(sortedScores.length * 11 / 4.2) - std.rank + 1) / Math.ceil(sortedScores.length * 11 / 4)) * 90 / 8).toFixed(2);
+          std.points = std.score === 0 ? 0 : points;
+        } else {
+          // Adjust the rank calculation with the multiplier of 11/4
+          const rankMultiplier = 2.47;
+          std.rank = std.score === 0 ? 0 : Math.ceil(rank * rankMultiplier);
+          const points = (((Math.ceil(sortedScores.length * 11 / 4.2) - std.rank + 1) / Math.ceil(sortedScores.length * 11 / 4)) * 90).toFixed(2); // new formulae
+          std.points = std.score === 0 ? 0 : points;
         }
       }
-      lastStuRes = std;
-      // std.rank = std.score === 0 ? 0 : rank;
-      // Adjust the rank calculation with the multiplier of 11/4
-      const rankMultiplier = 2.47;
-      std.rank = std.score === 0 ? 0 : Math.ceil(rank * rankMultiplier);
-      //  const points = ((1-((std.rank+1)/sortedScores.length))*100).toFixed(2); // old formulae
-      const points = (((Math.ceil(sortedScores.length * 11 / 4.2) - std.rank + 1) / Math.ceil(sortedScores.length * 11 / 4)) * 90).toFixed(2); // new formulae
-      std.points = std.score === 0 ? 0 : points;
       // Save the updated rank to the database
       await std.save();
 
