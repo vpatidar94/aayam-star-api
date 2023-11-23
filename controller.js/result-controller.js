@@ -324,7 +324,8 @@ const getAllResultsDetails = async (req, res, next) => {
                 0
               ]
             }
-          }
+          },
+          orgCode: 1
         }
       },
       {
@@ -337,7 +338,8 @@ const getAllResultsDetails = async (req, res, next) => {
           referralPoints: 1,
           totalTestPoints: 1,
           totalTests: 1,
-          totalPoints: { $sum: ["$totalTestPoints", "$referralPoints"] }
+          totalPoints: { $sum: ["$totalTestPoints", "$referralPoints"] },
+          orgCode: 1
         }
       },
       {
