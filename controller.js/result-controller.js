@@ -192,19 +192,30 @@ const sendWpMessage = async (req, res) => {
 const getResultByTest = async (req, res) => {
   const { testId } = req.params;
   const { orgCode, type } = req.user;
+
   try {
     // If org-admin, show all results based on orgCode
     if (type === 'org-admin') {
-      result = await Result.find({ testId: testId })
-        .populate({
-          path: 'userId',
-          match: { orgCode: orgCode }
-        })
-        .sort({ rank: 1 });
+      const test = await Test.findOne({ _id: testId });
+      const stream = test.stream
+      const users = await User.find({ orgCode: orgCode });
+      // Filter users based on the streams associated with the test
+      const usersForStreams = users.filter(user => test.stream.includes(user.stream));
+      // userIds of users associated with test
+      const userIds = usersForStreams.map(user => user._id);
+      result = await Result.find({ testId: testId, userId: { $in: userIds } })
+        .populate({ path: 'userId', model: 'User' })
+        .sort({ points: -1, rank: 1 });
+      // Add users who haven't given the test to the result
+      const usersWithoutResults = usersForStreams.filter(user => !result.some(r => r.userId._id.toString() === user._id.toString()));
+      // concat result with absent users
+      result = result.concat(usersWithoutResults.map(user => ({ userId: user, score: null, rank: null, duration: null })));
+
     } else if (type === 'admin') {
       // If admin, show all results without filtering
-      result = await Result.find({ testId: testId }).populate('userId').sort({ rank: 1 });
+      result = await Result.find({ testId: testId }).populate('userId').sort({ points: -1, rank: 1 });
     }
+
     res.status(200).json({
       data: result,
       code: 200,
