@@ -2,6 +2,7 @@ const User = require("../model/User")
 const { generateToken, verifyToken } = require('../middleware/jwt-token');
 const Organisation = require("../model/Organisation");
 const { sendWpAdminLoginLink } = require("../services/whatsapp-service");
+const sendSMS = require("../services/sms-service");
 // const fetchIdByToken = require('../services/token');
 
 const getAllUsers = async (req, res, next) => {
@@ -263,6 +264,31 @@ const addScore = async (req, res) => {
   }
 }
 
+// otp message by sms-service
+const sendOTPMessage = async (req, res) => {
+  const data = req.body;
+  console.log(data)
+  const { mobileNo, otp } = data;
+  console.log("mobileNo", mobileNo)
+
+  try {
+      const sendSms = await sendSMS(mobileNo, otp);
+      res.status(200).json({
+          data: sendSms,
+          code: 200,
+          status_code: 'success',
+          message: 'Message sent successfully.',
+      });
+  } catch (error) {
+      console.error("Error sending message:", error);
+      res.status(500).json({
+          code: 500,
+          status_code: "error",
+          message: 'Failed to send message.',
+      });
+  }
+};
+
 
 exports.addUser = addUser;
 exports.addUpdateUser = addUpdateUser;
@@ -272,3 +298,4 @@ exports.getAllUsers = getAllUsers;
 exports.addOrgAdminUser = addOrgAdminUser;
 exports.updateOrgAdminDetails = updateOrgAdminDetails;
 exports.getUserById = getUserById;
+exports.sendOTPMessage = sendOTPMessage;
